@@ -1,0 +1,23 @@
+{
+  "name": "timber",
+  "version": "1.0.0",
+  "description": "Cut down your logs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Julia#0001",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.2.1",
+    "knex": "^0.14.6",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "promise-mysql": "^3.2.1"
+  },
+  "devDependencies": {
+    "mysql2": "^1.5.3"
+  }
+}
