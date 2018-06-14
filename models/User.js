@@ -9,7 +9,7 @@ class User {
 
 
     static async getOne(id) {
-        var r = db.table('users').select().where({id: id}).return();
+        let r = db.table('users').select().where({id: id}).return();
         return new User(id, r.username, {}); // TODO: Fetch apps the user has view permission for
     }
 
