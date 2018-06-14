@@ -7,10 +7,24 @@ class User {
         this.apps = apps;
     }
 
+    static async getOneByUsername(username) {
+        let r = await db.table('users').select().where({username: username}).limit(1);
+        let ri;
 
-    static async getOne(id) {
-        let r = db.table('users').select().where({id: id}).return();
-        return new User(id, r.username, {}); // TODO: Fetch apps the user has view permission for
+        if(!r.length) {return undefined;}
+        ri = r[0];
+
+        return new User(ri.id, ri.username, {});
+    }
+
+    static async getById(id) {
+        let r = await db.table('users').select().where({id: id}).limit(1);
+        let ri;
+
+        if(!r.length) {return undefined;}
+        ri = r[0];
+
+        return new User(ri.id, ri.username, {});
     }
 
     /**
@@ -23,7 +37,7 @@ class User {
      * @returns {boolean} True if the password was accepted. False otherwise.
      */
     static async checkPassword(password) {
-
+        
     }
 }
 
