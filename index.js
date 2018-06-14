@@ -2,7 +2,7 @@
 const express = require('express');
 
 /* constants and Internal Depencencies */
-const app = express();
+const app = module.exports = express();
 const db = require('./controllers/database');
 
 app.set('view engine', 'ejs');
