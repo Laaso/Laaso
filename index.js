@@ -5,5 +5,15 @@ const express = require('express');
 const app = express();
 const db = require('./controllers/database');
 
+app.set('view engine', 'ejs');
+
 // Uses a different authentication system than the normal site, and as such uses a different router.
 //app.route('api', require('./routes/api.js'));
+
+app.use(express.static('public'));
+
+app.get('/',(req,res) => {
+    res.render('layout', {page:'index'});
+});
+
+app.listen(3000);
