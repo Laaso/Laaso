@@ -36,7 +36,7 @@ class User {
      * @param {string} password 
      * @returns {boolean} True if the password was accepted. False otherwise.
      */
-    static async checkPassword(password) {
+    async checkPassword(password) {
         
     }
 }
