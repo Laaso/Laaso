@@ -1,4 +1,7 @@
 const db = require('../controllers/database');
+const bcrypt = require('bcrypt');
+
+const SALT_ROUNDS = 13;
 
 class User {
     constructor(id, username, apps) {
@@ -27,6 +30,12 @@ class User {
         return new User(ri.id, ri.username, {});
     }
 
+    static async create(username, password) {
+        let hashedPass = await bcrypt.hash(password, SALT_ROUNDS);
+        let r = await db.table('users').insert({username: username, password: hashedPass});
+        return r[0];
+    }
+
     /**
      * To prevent user passwords from being accessed by any other part of this app,
      * this method must be used to check supplied passwords with stored ones.
@@ -37,7 +46,12 @@ class User {
      * @returns {boolean} True if the password was accepted. False otherwise.
      */
     async checkPassword(password) {
-        
+        let r = await db.table('users').select().where({id: this.id}).limit(1);
+
+        // User doesn't exist
+        if(!r.length) {return false;}
+        let pass = r[0].password;
+        return await bcrypt.compare(password, pass);
     }
 }
 

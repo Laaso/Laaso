@@ -9,9 +9,12 @@ passport.use(new LocalStrat(
     function(uname, pass, cb) {
         User.getOneByUsername(uname).then((user) => {
             if(!user) {return cb(null, false);}
-            if(!user.checkPassword(pass)) {return cb(null, false);}
+            this.user = user;
 
-            return cb(null, user);
+            return user.checkPassword(pass);
+
+        }).then((correct) => {
+            return cb(null, (correct ? this.user : false));
         }).catch((err) => {
             return cb(err);
         });
