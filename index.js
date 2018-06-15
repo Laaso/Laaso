@@ -1,21 +1,6 @@
-/* External Dependencies */
-const express = require('express');
-
-/* constants and Internal Depencencies */
-const app = module.exports = express();
-const db = require('./controllers/database');
-const passport = require('./controllers/passport');
-
-app.set('view engine', 'ejs');
-
-// Uses a different authentication system than the normal site, and as such uses a different router.
-//app.route('api', require('./routes/api.js'));
-
-
-app.use(express.static('public'));
-
-app.get('/',(req,res) => {
-    res.render('layout', {page:'index'});
-});
+const app = require('./controllers/express');
+// We don't care for these exports, but we need to init them before anything else.
+require('./controllers/database');
+require('./controllers/passport');
 
 app.listen(3000);

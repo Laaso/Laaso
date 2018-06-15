@@ -1,4 +1,4 @@
-const app = require('../'); // Require the base app to get our Express app
+const app = require('../controllers/express'); // Require the base app to get our Express app
 const ewss = require('express-ws')(app);
 const router = require('express').Router();
 const wss = ewss.getWss('/');

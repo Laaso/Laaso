@@ -8,7 +8,7 @@
  *  You should install the appropriate driver for the database you want to use using
  *  npm or yarn:
  *  Database        npm driver
- *  MySQL           mysql2
+ *  MySQL           mysql / mysql2
  *  PostgreSQL      pg
  *  SQLite3         sqlite3
  * 
@@ -17,10 +17,10 @@
  */
 
 module.exports = {
-    client     : 'mysql', // Knex client to use.
+    client     : 'mysql2', // Knex client to use.
     // Client connection options. These depend on the above client.
 
-    // MySQL
+    // MySQL / MySQL2
     connection : {
         host     : '127.0.0.1',
         user     : 'timber',
