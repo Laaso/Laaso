@@ -43,6 +43,33 @@ class App {
     }
 
     /**
+     * Logs en event
+     * @param {string} level Level. You may use anything, though only 'warn' and 'error' produce alerts.
+     * @param {string} type Event type
+     * @param {JSON} msg Json-formatted message. Strings containing JSON are accepted
+     */
+    async addLogEntry(level, type, msg) {
+        try {
+            if(typeof msg !== 'object' && typeof msg !== undefined) {throw new Error();}
+            if(Array.isArray(msg)) {throw new Error();}
+        } catch(err) {
+            throw {
+                code : 'NOT_JSON_OBJ',
+                message : 'message may only be a JSON-formatted object'
+            };
+        }
+
+        let r = await db.table('event_log').insert({
+            app : this.id,
+            level : level || 'info',
+            type : type,
+            message : JSON.stringify(msg)
+        });
+
+        return r[0];
+    }
+
+    /**
      * Deletes the App and everything in the database about it
      * Acts asyncronously.
      */
