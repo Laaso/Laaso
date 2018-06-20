@@ -80,9 +80,9 @@ class App {
             let etoken;
             let app;
 
-            decoded = jwt.verify(token, cfg.secret, cfg.checking);
+            decoded = await jwt.verify(token, cfg.secret, cfg.checking);
 
-            app = await App.getOne(decoded.id);
+            app = await App.getOne(decoded.appid);
             etoken = await app.getEffectiveToken();
 
             // If this token is anything but the effective token, it's invalid.
@@ -94,6 +94,7 @@ class App {
             return app;
         } catch(err) {
             // TODO: Use Timber's built in app to log things like this
+            console.log(err);
             console.log('Invalid token supplied');
             return undefined;
         }
