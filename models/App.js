@@ -47,6 +47,7 @@ class App {
      * @param {string} level Level. You may use anything, though only 'warn' and 'error' produce alerts.
      * @param {string} type Event type
      * @param {JSON} msg Json-formatted message. Strings containing JSON are accepted
+     * @throws {Error} If the message isn't a JSON Object
      */
     async addLogEntry(level, type, msg) {
         try {
