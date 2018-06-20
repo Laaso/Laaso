@@ -1,3 +1,4 @@
+const App = require('./App');
 const db = require('../controllers/database');
 const bcrypt = require('bcrypt');
 
@@ -8,6 +9,31 @@ class User {
         this.id = id;
         this.username = username;
         this.apps = apps;
+    }
+
+    /**
+     * Creates a new app for a user, if one with the given name doesn't already exist.
+     * Has no effect if an identically named app exists for this user.
+     * @param {string} name The name of the new app
+     * @returns {Promise<id>} ID of the new app, or the existing app if one was found.
+     */
+    async createApp(name) {
+        let app;
+        let r = await db.table('apps').select().where({appname: name, ownerid: this.id}).limit(1);
+        
+        // If an app was found
+        if(r.length !== 0) {
+            return r[0].id;
+        }
+
+        r = await db.table('apps').insert({appname:name, ownerid:this.id});
+        let appid = r[0];
+
+        app = await App.getOne(appid);
+        // Grant a token to the new app
+        app.grantToken();
+
+        return appid;
     }
 
     /**
