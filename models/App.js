@@ -73,7 +73,7 @@ class App {
      * @param {string} token Token to check for validity and app
      * @returns {Promise<App>} The app the token is valid for
      */
-    static getByToken(token) {
+    static async getByToken(token) {
         let decoded;
 
         try {
@@ -82,8 +82,8 @@ class App {
 
             decoded = jwt.verify(token, cfg.secret, cfg.checking);
 
-            app = App.getOne(decoded.id);
-            etoken = app.getEffectiveToken();
+            app = await App.getOne(decoded.id);
+            etoken = await app.getEffectiveToken();
 
             // If this token is anything but the effective token, it's invalid.
             if(etoken !== token) {
