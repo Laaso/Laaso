@@ -48,9 +48,9 @@ class App {
      */
     delete() {
         // Delete tokens
-        db.table('token_grants').delete().where({application:this.id});
+        db.table('token_grants').delete().where({application:this.id}).return();
         // Delete the app itself
-        db.table('apps').delete().where({appname:this.name});
+        db.table('apps').delete().where({id:this.id}).return();
     }
 
     /**
