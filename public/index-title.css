@@ -1,0 +1,10 @@
+#site-title {
+    width: 100%;
+    font-family: 'Titillium Web', 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    text-shadow: 0 0 2px black;
+    font-size: 5vw;
+    font-weight: bold;
+    text-decoration: none;
+    background-repeat: no-repeat;
+    background-position: 50%;
+}

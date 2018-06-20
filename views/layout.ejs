@@ -2,7 +2,11 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link href="https://fonts.googleapis.com/css?family=Lato|Martel+Sans|Titillium+Web" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="style.css">
+    <% if(page === 'index') { %>
+    <link rel="stylesheet" type="text/css" href="index-title.css">
+    <% } %>
     <title>
         <% if(locals.title) { %>
             <%= title %>
@@ -13,11 +17,26 @@
 
 </head>
 <body>
+<nav>
+</nav>
 <header>
-    <nav>
-        
-    </nav>
+        <a href='/' id='site-title'>
+            <h1>Timber</h1>
+        </a>
+        <% if(page === 'index') { %>
+            <h2 id='site-subtitle'>Cut down your logs!</h2>
+        <% } %>
 </header>
+<div id='content'>
 <%- include('pages/'+ page); %>
+</div>
+<footer>
+<div id='footer-links'>
+    <a href='/privacy'>Privacy Policy</a>
+    <a href='/docs'>API Documentation</a>
+</div>
+<p id='footer-copyright'>Copyright(©) 2018-2019 Julia Lynn Rogers<br />
+Licensed under the Apache license, Version 2.0</p>
+</footer>
 </body>
 </html>
