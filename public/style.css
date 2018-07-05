@@ -38,7 +38,7 @@ header {
 
 #content {
     padding-top: 20px;
-    margin-left: 10%;
+    margin: 0 auto;
     width: 80%;
     text-align: center;
 }
@@ -53,33 +53,47 @@ header {
     border: solid black 1px;
     border-radius: 126px;
     margin-bottom: 20px;
+    margin-top: 20px;
 }
 
-.pitch {
-    display: inline-block;
+.pitches-outer {
+    display: grid;
+    margin-top: 20px;
+    width: 100%;
+    grid-auto-rows: 1fr;
+    grid-template-columns: repeat(2,1fr);
+    grid-gap: 20px;
+}
+
+.pitches-outer > .pitch {
     padding: 5px;
-    margin-bottom: 20px;
-    width:40%;
-    margin-left: 2%;
-    margin-right: 2%;
-    height: 300px;
-    vertical-align: top;
+    padding-bottom: 20px;
+    grid-column-end: span 1;
+    min-width: 300px;
+    width: 100%;
+    height: auto;
     border: solid black 2px;
     background-color: #DDDDDD;
     opacity: 0.8;
+    border-radius: 25px;
 
-    transition: all 0.5s ease-in;
+    transition: all 0.2s ease-in;
 }
 
-.pitch:hover {
-    box-shadow: 0 0 30px black;
+.pitches-outer > .pitch:nth-last-child(1):nth-child(odd) {
+    grid-column-end: span 2;
+}
+
+.pitches-outer > .pitch:hover {
     opacity: 1;
-    background-color: #FFFFFF;
+    background-color: #E0E0E0;
+    box-shadow: 0 5px 10px 0 black;
 }
 
-.long {
-    width: 85%;
-    clear: both;
+@media only screen and (max-width: 850px) {
+    .pitches-outer > .pitch {
+        grid-column-end: span 2;  
+    }
 }
 
 .pitch-header p {
@@ -119,4 +133,53 @@ footer a {
     margin-left: 5px;
     margin-right: 5px;
     color: grey;
+}
+
+.indexbutton {
+    width: 300px;
+    height: 75px;
+}
+
+.register {
+    cursor: not-allowed;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    position: absolute;
+    width: 240px;
+    top: 100%;
+    left: 50%;
+    margin-left: -120px;
+    background-color: grey;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    z-index: 1;
+    opacity: 0.1;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip .tooltiptext::after {
+    content: " ";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width:  5px;
+    border-style: solid;
+    opacity: 1;
+    border-color: transparent transparent grey transparent;
 }

@@ -3,15 +3,17 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <link href="https://fonts.googleapis.com/css?family=Lato|Martel+Sans|Titillium+Web" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <% if(page === 'index') { %>
-    <link rel="stylesheet" type="text/css" href="index-title.css">
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <% if(page === '/index') { %>
+    <link rel="stylesheet" type="text/css" href="/index-title.css">
     <% } %>
     <title>
         <% if(locals.title) { %>
             <%= title %>
+        <% } else if(page==='/index') { %>
+            Laaso - Rein in your logs!
         <% } else { %>
-            Timber
+            Laaso - <%= page.substring(1); %>
         <% } %>
     </title>
 
@@ -21,10 +23,10 @@
 </nav>
 <header>
         <a href='/' id='site-title'>
-            <h1>Timber</h1>
+            <h1>Laaso</h1>
         </a>
-        <% if(page === 'index') { %>
-            <h2 id='site-subtitle'>Cut down your logs!</h2>
+        <% if(page === '/index') { %>
+            <h2 id='site-subtitle'>Rein in your logs!</h2>
         <% } %>
 </header>
 <div id='content'>
