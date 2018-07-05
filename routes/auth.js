@@ -8,11 +8,6 @@ const upload = multer({
     }
 });
 
-router.get('/login', (req, res) => {
-    // TODO: Make this not shit
-    res.render('layout', {page:'login'});
-});
-
 router.post('/login', upload.single(), (req,res,next) => {
     let uname = req.body.username;
     let pass = req.body.password;
@@ -26,6 +21,7 @@ router.post('/login', upload.single(), (req,res,next) => {
 
     // Authenticate the user
     passport.authenticate('local', (err, user, info) => {
+        console.log(info);
         if(err) {return next(err);}
 
         if(!user) {
