@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const app = module.exports = express();
 
 // Set Express config.
@@ -11,6 +12,17 @@ app.use(require('helmet')(require('../config/helmet')));
 app.use(express.static('public'));
 app.use(require('../routes'));
 
-app.get('/',async (req,res) => {
-    res.render('layout', {page:'index'});
+// Render the requested page
+app.get('*',async (req,res) => {
+    let page = req.path;
+    if(page === '/') {page = '/index';}
+
+    let exists = fs.existsSync('./views/pages/'+ page +'.ejs');
+
+    if(exists) {
+        res.render('layout',{page:page});
+    } else {
+        res.status(404).send('Not found.');
+    }
+    
 });
