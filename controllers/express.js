@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const app = module.exports = express();
+const laasocfg = require('../config/laaso');
 
 // Set Express config.
 require('../config/express');
@@ -20,7 +21,7 @@ app.get('*',async (req,res) => {
     let exists = fs.existsSync('./views/pages/'+ page +'.ejs');
 
     if(exists) {
-        res.render('layout',{page:page});
+        res.render('layout',{page:page,cfg:laasocfg});
     } else {
         res.status(404).send('Not found.');
     }
