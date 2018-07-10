@@ -1,9 +1,9 @@
 /* Database configuration
  * 
- *  Timber makes use of the Knex.js library in order to allow users to choose their
+ *  Laaso makes use of the Knex.js library in order to allow users to choose their
  *  own database in a relatively painless manner. Default configurations are provided
  *  for MySQL, PostgreSQL, and SQLite3. Other Knex-compatible databases may work but
- *  are not supported nor tested for use with Timber.
+ *  are not supported nor tested for use with Laaso.
  * 
  *  You should install the appropriate driver for the database you want to use using
  *  npm or yarn:
@@ -23,9 +23,9 @@ module.exports = {
     // MySQL / MySQL2
     connection : {
         host     : '127.0.0.1',
-        user     : 'timber',
+        user     : 'laaso',
         password : 'abcd1234',
-        database : 'timber'
+        database : 'laaso'
     },
 
     /* // PostgreSQL
@@ -35,7 +35,7 @@ module.exports = {
 
     /* // SQLite3
      * connection : {
-     *     filename: './timber.sqlite'
+     *     filename: './laaso.sqlite'
      * },
     */
 

@@ -24,9 +24,9 @@ module.exports = {
         secret: 'keyboard cat',
 
         // Session ID cookie name
-        // If you have multiple Timber instances running for some odd reason,
+        // If you have multiple Laaso instances running for some odd reason,
         // Change this.
-        name: 'timber.sid',
+        name: 'laaso.sid',
 
         // Unless you're using a store besides Knex, don't change these.
         resave: false,

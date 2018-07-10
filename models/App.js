@@ -121,7 +121,7 @@ class App {
             // Everything checks out, this app is validly represented by the given token.
             return app;
         } catch(err) {
-            // TODO: Use Timber's built in app to log things like this
+            // TODO: Use Laaso's built in app to log things like this
             console.log(err);
             console.log('Invalid token supplied');
             return undefined;

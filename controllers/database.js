@@ -5,7 +5,7 @@ const knex = require('knex')(cfg);
 knex.raw('SELECT 1+1 AS RESULT').then(() => {
     console.log('Database connection successful.');
 }).catch((err) => {
-    // Timber cannot function without a valid database
+    // Laaso cannot function without a valid database
     // Output the error code and exit
     console.log('Error connecting to database.');
     console.log(err.code);
