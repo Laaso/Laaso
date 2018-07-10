@@ -8,3 +8,103 @@
     background-repeat: no-repeat;
     background-position: 50%;
 }
+
+.logo {
+    height: 256px;
+    width: 256px;
+    margin: auto;
+    display: block;
+    background-color: #FFFFFF;
+    background-image: url('logo.png');
+    border: solid black 1px;
+    border-radius: 126px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.pitches-outer {
+    display: grid;
+    margin-top: 20px;
+    width: 100%;
+    grid-auto-rows: 1fr;
+    grid-template-columns: repeat(2,1fr);
+    grid-column-gap: 20px;
+}
+
+.pitches-outer > .pitch {
+    grid-column-end: span 1;
+    box-sizing: border-box;
+    min-width: 300px;
+    padding: 5px;
+    width: 100%;
+    height: auto;
+    border: solid black 2px;
+    background-color: #DDDDDD;
+    opacity: 0.8;
+    border-radius: 25px;
+    margin-top: 64px;
+
+    transition: all 0.2s ease-in;
+}
+
+.pitches-outer > .pitch:nth-last-child(1):nth-child(odd) {
+    grid-column-end: span 2;
+}
+
+.pitches-outer > .pitch:hover {
+    opacity: 1;
+    background-color: #E0E0E0;
+    box-shadow: 0 5px 10px 0 black;
+}
+
+@media only screen and (max-width: 850px) {
+    .pitches-outer > .pitch {
+        grid-column-end: span 2;  
+    }
+}
+
+.pitch-header p {
+    color:black;
+    font-family: 'Martel Sans', 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.pitch-text p {
+    color:black;
+    font-family: 'Lato', 'Times New Roman', Times, serif;
+    font-size: 18px;
+}
+
+.pitch-icon {
+    display: inline-block;
+    position: relative;
+    background-color: #DDDDDD;
+    border-radius: 64px;
+    border: solid black 2px;
+    width: 128px;
+    height: 128px;
+    top: -64px;
+    box-shadow: 0 5px 10px 0 black;
+}
+
+.pitch > div:not(:first-child) {
+    position: relative;
+    top: -50px;
+}
+
+.indexbutton {
+    width: 300px;
+    height: 75px;
+    border-radius: 25px;
+    margin-bottom: 5px;
+    background-color: #90c690;
+    border: none;
+    font-family: 'Lato', 'Times New Roman', Times, serif;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.indexbutton.not-allowed {
+    background-color: #90c69080;
+}
