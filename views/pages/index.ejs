@@ -1,14 +1,18 @@
 <div class='logo'></div>
 
-<button class='indexbutton register tooltip'>Register
+<% if(locals.cfg.registrationsClosed) { %>
+<button class='indexbutton not-allowed registerbutton tooltip'>Register
     <span class='tooltiptext'>Registrations are currently closed.</span>
 </button>
+<% } else { %>
+<button class='indexbutton registerbutton'>Register</button>
+<% } %>
 <button class='indexbutton loginbutton'>Login</button>
 
 <div class='pitches-outer'>
 <div class='pitch'>
     <div class='pitch-icon'>
-        <img src='' />
+        <img src='/pitch/sane.png' />
     </div>
     <div class='pitch-header'>
         <p>Sane Logging</p>
@@ -21,7 +25,7 @@
 
 <div class='pitch'>
     <div class='pitch-icon'>
-        <img src='' />
+        <img src='/pitch/consolidated.png' />
     </div>
     <div class='pitch-header'>
         <p>Consolidated Logs</p>
@@ -34,7 +38,7 @@
 
 <div class='pitch'>
     <div class='pitch-icon'>
-        <img src='' />
+        <img src='/pitch/alerts.png' />
     </div>
     <div class='pitch-header'>
         <p>Alerts</p>
@@ -48,7 +52,7 @@
 
 <div class='pitch'>
     <div class='pitch-icon'>
-        <img src='' />
+        <img src='/pitch/analytics.png' />
     </div>
     <div class='pitch-header'>
         <p>Analytics</p>
@@ -62,7 +66,7 @@
 
 <div class='pitch'>
     <div class='pitch-icon'>
-        <img src='' />
+        <img src='/pitch/oss.png' />
     </div>
     <div class='pitch-header'>
         <p>Open Source</p>
