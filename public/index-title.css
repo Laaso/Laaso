@@ -104,6 +104,7 @@
     border: none;
     font-family: 'Lato', 'Times New Roman', Times, serif;
     font-size: 30px;
+    cursor: pointer;
     font-weight: bold;
 }
 
