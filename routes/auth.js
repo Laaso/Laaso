@@ -2,38 +2,86 @@ const router = require('express').Router();
 const multer = require('multer');
 const passport = require('passport');
 
+const cfg = require('../config/laaso');
+const User = require('../models').User;
+
 const upload = multer({
     limits: {
         files: 0
     }
 });
 
-router.post('/login', upload.single(), (req,res,next) => {
-    let uname = req.body.username;
-    let pass = req.body.password;
+// Both auth endpoints should run this when posted to
+router.post(['/login','/register'], upload.single(), (req,res,next) => {
+    req.uname = req.body.username;
+    req.pass = req.body.password;
 
-    // These cannot be empty. Don't bother wasting resources.
-    if(uname === undefined || pass === undefined) {
-        console.log('one of the two fields is empty');
-        res.redirect('/login?autherror=emptyfield');
-        return;
+    // Both fields are REQUIRED!
+    if(!req.uname || !req.pass) {
+        return res.redirect(req.path +'?error=empty');
     }
 
-    // Authenticate the user
-    passport.authenticate('local', (err, user, info) => {
-        console.log(info);
+    // No issues.
+    return next();
+});
+
+router.get('/logout', (req,res) => {
+    // Just log them out and return them to the landing page.
+    req.logout();
+    return res.redirect('/?action=logout');
+});
+
+router.post('/register', async (req,res,next)  => {
+    if(cfg.registrationsClosed) {
+        // This should only occur if users are attempting to bypass the UI
+        return res.redirect('/');
+    }
+
+    // Check password requirements, as enforced by config.
+    let valid = true;
+    for(let rule of cfg.passwordRules) {
+        // If one of the rules doesn't match up
+        if(!req.pass.match(rule)) {
+            console.log(rule +' doesn\'t match');
+            valid=false;
+            break;
+        }
+    }
+
+    // If it doesn't meet the rules
+    if(!valid) {
+        return res.redirect('/register?error=passwordRules');
+    }
+    
+    try {
+        if(await User.getOneByUsername(req.uname) !== undefined) {
+            // As much as I'd like to not let users know if a username is taken, it's unavoidable here
+            return res.redirect('/register?error=exists');
+        }
+        await User.create(req.uname, req.pass);
+        // Immediately log the new user in
+        return next();
+    } catch(err) {
+        return next(err);
+    }
+});
+
+// Login middleware, both on login and post-registry
+router.post(['/login', '/register'], (req,res,next) => {
+    passport.authenticate('local', (err, user) => {
         if(err) {return next(err);}
 
+        // If the user was not authenticated properly
+        // Should only occur on login path
         if(!user) {
-            console.log('bad creds');
-            return res.redirect('/login?autherror=incorrect');
+            return res.redirect('/login?error=incorrect');
         }
 
         req.login(user, (err) => {
             if(err) {return next(err);}
-            console.log('ok_hand');
 
-            return res.redirect('/?login');
+            // Strip the slash. Home page should respond both to logins and registrations
+            return res.redirect('/?action='+ req.path.substring(1));
         });
     })(req, res, next);
 });
