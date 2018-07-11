@@ -1,22 +1,39 @@
 const passport = require('passport');
 const LocalStrat = require('passport-local').Strategy;
-const app = require('./express');
 
 const User = require('../models').User;
 
 passport.use(new LocalStrat(
-    function(uname, pass, cb) {
-        User.getOneByUsername(uname).then((user) => {
-            if(!user) {return cb(null, false);}
-            this.user = user;
+    async function(username, pass, done) {
+        let user;
+        let s;
+        
+        try {
+            // Get the user
+            user = await User.getOneByUsername(username);
+        } catch(err) {
+            console.log(err);
+            return done(err);
+        }
 
-            return user.checkPassword(pass);
+        // Check the user exists
+        if(!user) {return done(null, false);}
+        
+        // Check their password is correct
+        try {
+            s = await user.checkPassword(pass);
+        } catch(err) {
+            console.log(err);
+            return done(err);
+        }
 
-        }).then((correct) => {
-            return cb(null, (correct ? this.user : false));
-        }).catch((err) => {
-            return cb(err);
-        });
+        // If the password is incorrect
+        if(!s) {
+            return done(null, false);
+        }
+
+        // User authenticated successfully!
+        return done(null, user);
     }
 ));
 
@@ -31,8 +48,5 @@ passport.deserializeUser((id, cb) => {
         console.log(err);
     });
 });
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 module.exports = passport;

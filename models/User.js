@@ -72,11 +72,16 @@ class User {
      * Creates a new user with the given username and password
      * @param {string} username 
      * @param {string} password
-     * @returns {Promise<number>} New user's ID. 
+     * @returns {Promise<number>} New user's ID
      */
     static async create(username, password) {
         let hashedPass = await bcrypt.hash(password, SALT_ROUNDS);
-        let r = await db.table('users').insert({username: username, password: hashedPass});
+        let r;
+        try {
+            r = await db.table('users').insert({username: username, password: hashedPass});
+        } catch(err) {
+            throw err;
+        }
         return r[0];
     }
 
@@ -90,12 +95,17 @@ class User {
      * @returns {Promise<boolean>} True if the password was accepted. False otherwise.
      */
     async checkPassword(password) {
+        if(password === undefined) {return false;}
         let r = await db.table('users').select().where({id: this.id}).limit(1);
 
         // User doesn't exist
         if(!r.length) {return false;}
         let pass = r[0].password;
-        return await bcrypt.compare(password, pass);
+        try {
+            return await bcrypt.compare(password, pass);
+        } catch(err) {
+            throw err;
+        }
     }
 }
 
