@@ -87,8 +87,9 @@ footer a {
     top: 100%;
     left: 50%;
     margin-left: -120px;
-    background-color: grey;
-    color: #fff;
+    background-color: #DDDDDD;
+    border: solid 2px black;
+    color: black;
     text-align: center;
     font-family: 'Lato', 'Times New Roman', Times, serif;
     font-size: 14px;
@@ -114,5 +115,5 @@ footer a {
     border-width:  5px;
     border-style: solid;
     opacity: 1;
-    border-color: transparent transparent grey transparent;
+    border-color: transparent transparent black transparent;
 }
