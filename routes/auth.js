@@ -12,6 +12,10 @@ const upload = multer({
 });
 
 router.get('/me', (req,res,next) => {
+    // This is a debug endpoint, and should only work in dev environments
+    if(process.env.NODE_ENV !== 'development') {
+        return next();
+    }
     return res.json(req.user);
 });
 
