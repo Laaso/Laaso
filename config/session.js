@@ -6,6 +6,10 @@
  * THE DEFAULT VALUE IS HELLA INSECURE.
  */
 module.exports = {
+    // Secret used for secure cookie signing.
+    // Change this to some sort of string you don't intend on sharing.
+    // No, seriously, change this. Please.
+    secret: 'keyboard cat',
     cookie : {
         // Lifespan of session cookies.
         // Default is 30 days. Change left hand number to configure this.
@@ -16,12 +20,7 @@ module.exports = {
 
         // Change this to false ONLY if your site does not have HTTPS.
         // Or, just use HTTPS.
-        secure: true,
-
-        // Secret used for secure cookie signing.
-        // Change this to some sort of string you don't intend on sharing.
-        // No, seriously, change this. Please.
-        secret: 'keyboard cat',
+        secure: false,
 
         // Session ID cookie name
         // If you have multiple Laaso instances running for some odd reason,

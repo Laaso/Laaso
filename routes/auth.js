@@ -11,6 +11,10 @@ const upload = multer({
     }
 });
 
+router.get('/me', (req,res,next) => {
+    return res.json(req.user);
+});
+
 // Both auth endpoints should run this when posted to
 router.post(['/login','/register'], upload.single(), (req,res,next) => {
     req.uname = req.body.username;
