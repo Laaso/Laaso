@@ -13,7 +13,7 @@
         <% } else if(page==='/index') { %>
             Laaso - Rein in your logs!
         <% } else { %>
-            Laaso - <%= page.substring(1); %>
+            Laaso - <%= page.substring(page.indexOf('/') +1).replace('_',' '); %>
         <% } %>
     </title>
 

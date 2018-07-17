@@ -8,7 +8,7 @@ router.get('*', (req,res,next) => {
         let exists = fs.existsSync('./views/pages/'+ page +'.ejs');
 
         if(exists) {
-            return res.render('layout', {page:page, cfg:laasocfg});
+            return res.render('layout', {page:page, cfg:laasocfg, express:{req:req,res:res}});
         }
 
         return next();
@@ -21,8 +21,6 @@ router.get('*', (req,res,next) => {
 router.get('*', (req,res,next) => {
     let page = req.path;
     if(page === '/') {page='/index';}
-    console.log('altrendering '+ page);
-    console.log(req.path);
     res.altRender(page);
     return next();
 });
