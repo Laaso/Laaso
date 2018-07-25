@@ -50,7 +50,7 @@ class User {
         if(!r.length) {return undefined;}
         ri = r[0];
 
-        return new User(ri.id, ri.username, {});
+        return new User(ri.id, ri.username, await App.getAllForUser(ri.id));
     }
 
     /**
@@ -65,7 +65,7 @@ class User {
         if(!r.length) {return undefined;}
         ri = r[0];
 
-        return new User(ri.id, ri.username, {});
+        return new User(ri.id, ri.username, await App.getAllForUser(ri.id));
     }
 
     /**

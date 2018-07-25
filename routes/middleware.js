@@ -4,13 +4,16 @@ const fs = require('fs');
 
 // Provide additional methods
 router.get('*', (req,res,next) => {
-    res.altRender = (page = req.originalUrl) => {
+    res.altRender = (page = req.originalUrl, extra = {}) => {
         console.log('altRender('+ page +')');
         let exists = fs.existsSync('./views/pages/'+ page +'.ejs');
 
         if(exists) {
             console.log('\texists');
-            res.render('layout', {page:page, cfg:laasocfg, express:{req:req,res:res}});
+            let ejsvars = {page:page, cfg:laasocfg, express:{req:req,res:res}};
+
+            Object.assign(ejsvars,extra);
+            res.render('layout', ejsvars);
             return true;
         }
 

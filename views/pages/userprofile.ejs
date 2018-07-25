@@ -1,0 +1,19 @@
+<% let user = express.req.user; %>
+
+<h1 class='usertitle'>
+    <%= user.username %>'s Profile
+</h1>
+<h2 class='usersubtitle'>Your apps</h2>
+<% if(user.apps.length === 0) { %>
+    <p class='noapps'>You don't have any apps with Laaso.</p>
+    <button onclick='window.location="/user/app/new"'>Create one now</button>
+<% } else { %>
+<% for(let i in user.apps) { %>
+<% let app = user.apps[i]; %>
+    <a href='/user/apps/<%= app.id %>'>
+    <div class='appcard'>
+    <p class='appname'>
+    <%= app.name %>
+    </p>
+    </div></a>
+<% }} %>

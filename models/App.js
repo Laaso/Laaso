@@ -81,6 +81,14 @@ class App {
         db.table('apps').delete().where({id:this.id}).return();
     }
 
+    async getLogMessages(filter = {}, limit) {
+        Object.assign(filter,{app:this.id});
+        // TODO: Test preparedstatements here work properly.
+        let r = await db.table('event_log').select().where(filter).limit(limit);
+        console.log(r);
+        return r;
+    }
+
     /**
      * Gets the first (and hopefully only) app with a given ID.
      * @param {number} id
@@ -94,6 +102,24 @@ class App {
         ri = r[0];
 
         return new App(ri.id, ri.appname, ri.ownerid);
+    }
+
+    /**
+     * Gets all Apps owned by a given user
+     * @param {number} user ID of the user to get apps for
+     * @returns {Array{App}} All apps for the given user.
+     */
+    static async getAllForUser(user) {
+        // TODO: Add a config for an app limit for users, and enforce that here. (and on the create method)
+        let r = await db.table('apps').select().where({ownerid:user});
+        let res = [];
+
+        for(let i in r) {
+            let curr = r[i];
+            res.push(new App(curr.id, curr.appname, curr.ownerid));
+        }
+
+        return res;
     }
 
     /**
