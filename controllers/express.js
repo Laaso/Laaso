@@ -4,6 +4,11 @@ const fs = require('fs');
 const app = module.exports = express();
 const sessioncfg = require('../config/session');
 const passport = require('./passport');
+const KnexSessionStore = require('connect-session-knex')(session);
+const db = require('./database');
+const store = new KnexSessionStore({knex:db});
+
+Object.assign(sessioncfg.cookie, {store:store});
 
 // Set Express config.
 require('../config/express');

@@ -16,7 +16,13 @@ router.get('/me', (req,res,next) => {
     if(process.env.NODE_ENV !== 'development') {
         return next();
     }
-    return res.json(req.user);
+    let output = {};
+    Object.assign(output,{user:req.user});
+    Object.assign(output,{session:req.session});
+
+    console.log(`User in session: ${req.session.userid}`);
+
+    return res.json(output);
 });
 
 // Both auth endpoints should run this when posted to
@@ -35,6 +41,7 @@ router.post(['/login','/register'], upload.single(), (req,res,next) => {
 
 router.get('/logout', (req,res) => {
     // Just log them out and return them to the landing page.
+    req.session.destroy();
     req.logout();
     return res.redirect('/?action=logout');
 });
@@ -88,6 +95,8 @@ router.post(['/login', '/register'], (req,res,next) => {
         req.login(user, (err) => {
             if(err) {return next(err);}
 
+            req.session.userid = user.id;
+            req.session.save();
             // Strip the slash. Home page should respond both to logins and registrations
             return res.redirect('/?action='+ req.path.substring(1));
         });

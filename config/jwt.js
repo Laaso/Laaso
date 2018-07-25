@@ -23,5 +23,10 @@ module.exports = {
         // Set this to a time (in seconds) to give tolerance on expiry times to account for
         // differences in system times. Has no effect if tokens do not expire.
         clockTolerance: undefined
+    },
+    passport : {
+        jwtFromRequest : require('passport-jwt').ExtractJwt.fromAuthHeaderAsBearerToken()
     }
 };
+
+module.exports.passport.secretOrKey = module.exports.secret;

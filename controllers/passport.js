@@ -1,26 +1,23 @@
 const passport = require('passport');
 const LocalStrat = require('passport-local').Strategy;
+const JWTStrat = require('passport-jwt').Strategy;
 
 const User = require('../models').User;
+const cfg = require('../config/jwt').passport;
 
 passport.use(new LocalStrat(
-    async function(username, pass, done) {
+    async (username, pass, done) => {
         let user;
         let s;
         
         try {
             // Get the user
             user = await User.getOneByUsername(username);
-        } catch(err) {
-            console.log(err);
-            return done(err);
-        }
 
-        // Check the user exists
-        if(!user) {return done(null, false);}
-        
-        // Check their password is correct
-        try {
+            // Check the user exists
+            if(!user) {return done(null, false);}
+
+            // Check their password
             s = await user.checkPassword(pass);
         } catch(err) {
             console.log(err);
@@ -33,6 +30,22 @@ passport.use(new LocalStrat(
         }
 
         // User authenticated successfully!
+        return done(null, user);
+    }
+));
+
+passport.use(new JWTStrat(cfg,
+    async (payload, done) => {
+        let id = payload.id;
+        let user;
+
+        try {
+            user = await User.getById(id);
+        } catch(err) {
+            console.log(err);
+            return done(err);
+        }
+
         return done(null, user);
     }
 ));
