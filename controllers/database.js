@@ -1,4 +1,4 @@
-const cfg = require('../config/database');
+const cfg = require('../config');
 const knex = require('knex')(cfg);
 
 // Perform a simple query to confirm our configuration is valid

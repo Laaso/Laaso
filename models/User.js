@@ -1,110 +1,88 @@
-const App = require('./App');
-const db = require('../controllers/database');
 const bcrypt = require('bcrypt');
 
-const SALT_ROUNDS = 13;
+const db = require('../controllers/database');
+const App = require('./App');
+const cfg = require('../config/laaso');
 
+const SALT_ROUNDS = cfg.salt_rounds;
+
+/**
+ * Represents a Laaso user.
+ * @typedef {Object} User
+ * @property {string} id
+ * @property {string} name
+ */
 class User {
-    constructor(id, username, apps) {
+    /**
+     * Creates a basic User object. This object has none of the user's apps
+     * @param {string} id - Snowflake ID of the user
+     * @param {string} name - Name of the user
+     */
+    constructor(id, name) {
+        // TODO: Get apps for the user.
         this.id = id;
-        this.username = username;
-        this.apps = apps;
+        this.name = name;
     }
 
-    /**
-     * Creates a new app for a user, if one with the given name doesn't already exist.
-     * Has no effect if an identically named app exists for this user.
-     * @param {string} name The name of the new app
-     * @returns {Promise<id>} ID of the new app, or the existing app if one was found.
-     */
-    async createApp(name) {
-        let app;
-        let r = await db.table('apps').select().where({appname: name, ownerid: this.id}).limit(1);
-        
-        // If an app was found
-        if(r.length !== 0) {
-            return r[0].id;
-        }
 
-        r = await db.table('apps').insert({appname:name, ownerid:this.id});
-        let appid = r[0];
 
-        app = await App.getOne(appid);
-        // Grant a token to the new app
-        app.grantToken();
-
-        return appid;
-    }
+    /* Static Database Functions */
 
     /**
-     * Gets the first user matching a given username
-     * Usernames should be unique, but in the rare odd case they aren't...
-     * Good luck.
-     * @param {*} username 
-     * @returns {(Promise<User>|undefined)} A user if one matches. Undefined otherwise. 
+     * Gets User given an ID
+     * @param {string} id - Snowflake ID of desired User
+     * @returns {User|undefined} Desired user or undefined if user doesn't exist
      */
-    static async getOneByUsername(username) {
-        let r = await db.table('users').select().where({username: username}).limit(1);
-        let ri;
-
-        if(!r.length) {return undefined;}
-        ri = r[0];
-
-        return new User(ri.id, ri.username, await App.getAllForUser(ri.id));
-    }
-
-    /**
-     * Gets the first (and hopefully only) user with a given ID.
-     * @param {number} id 
-     * @returns {(Promise<User>|undefined)} A user if one matches. Undefined otherwise. 
-     */
-    static async getById(id) {
-        let r = await db.table('users').select().where({id: id}).limit(1);
-        let ri;
-
-        if(!r.length) {return undefined;}
-        ri = r[0];
-
-        return new User(ri.id, ri.username, await App.getAllForUser(ri.id));
-    }
-
-    /**
-     * Creates a new user with the given username and password
-     * @param {string} username 
-     * @param {string} password
-     * @returns {Promise<number>} New user's ID
-     */
-    static async create(username, password) {
-        let hashedPass = await bcrypt.hash(password, SALT_ROUNDS);
+    static async getOne(id) {
+        let user;
         let r;
+
         try {
-            r = await db.table('users').insert({username: username, password: hashedPass});
+            r = await db.table('users').select().where({id:id});
+
+            // No user found
+            if(!r.length) {return undefined;}
+            // Multiple users found, uses first
+            if(r.length > 1) {App.laaso.log('warn','duplicate_id',{id:id});}
+
+            // The user we need is the first
+            user = r[0];
         } catch(err) {
-            throw err;
+            // Log the failure
+            App.laaso.log('error', 'db_failure', {operation:'get', id:id});
+            return undefined;
         }
-        return r[0];
+
+        return user;
     }
 
     /**
-     * To prevent user passwords from being accessed by any other part of this app,
-     * this method must be used to check supplied passwords with stored ones.
-     * 
-     * Yes, passwords are hashed, salted, all that jazz, but there is no reason any
-     * other part of the code should have access to them.
-     * @param {string} password 
-     * @returns {Promise<boolean>} True if the password was accepted. False otherwise.
+     * Creates a User given credentials and returns the user if successful.
+     * @param {string} username Login username for the user. Must be unique.
+     * @param {string} password Login password for the user. Will be hashed and all that jazz, but this should be raw.
+     * @returns {User|object} On success, the User's new object will be returned. On failure, an object containing the error.
      */
-    async checkPassword(password) {
-        if(password === undefined) {return false;}
-        let r = await db.table('users').select().where({id: this.id}).limit(1);
-
-        // User doesn't exist
-        if(!r.length) {return false;}
-        let pass = r[0].password;
+    static async createAndSave(username, password) {
         try {
-            return await bcrypt.compare(password, pass);
-        } catch(err) {
-            throw err;
+            // Check if users exist with that name
+            let takenName = await db.select().from('users').where({'username':username}).limit(1);
+
+            if(takenName.length > 0) {
+                // The username is taken. These are supposed to be unique per user.
+                return {code:'USERNAME_EXISTS',readable:'That username is taken by another user.'};
+            }
+
+            // We can assume the username is not taken, so we can hash and store the supplied password now.
+            await bcrypt.hash(password, SALT_ROUNDS, (err, hash) => {
+                if(err) {
+                    // Pass the error up for handling
+                    throw err;
+                }
+
+                db('users').insert({username:username, password:hash});
+            });
+
+            // Simply return the result of our getOne method
         }
     }
 }

@@ -1,8 +1,19 @@
-const jwt = require('jsonwebtoken');
 const db = require('../controllers/database');
-const cfg = require('../config/jwt');
 
+/**
+ * Represents an application which may send logs
+ * @typedef {Object} App
+ * @property {string} id
+ * @property {string} name
+ * @property {string} owner
+ */
 class App {
+    /**
+     * Creates an App object
+     * @param {string} id - Snowflake ID of the app
+     * @param {string} name - Name of the app
+     * @param {string} owner Snowflake ID of the owner
+     */
     constructor(id, name, owner) {
         this.id = id;
         this.name = name;
@@ -10,149 +21,113 @@ class App {
     }
 
     /**
-     * Grants a token to the app, invalidating older tokens.
-     * An app may only have one valid token at any time.
-     * @returns {Promise<string>} The new token.
+     * Log message to the database
+     * @param {string} level - Log urgency level
+     * @param {string} event - Event requiring logging
+     * @param {Object|string} message - Message
+     * @returns {undefined}
      */
-    async grantToken() {
-        // Create then fetch the default timestamp for the token.
-        await db.table('token_grants').insert({application: this.id});
-        
-        // We now have a new effective token, so we can just return that.
-        return this.getEffectiveToken();
-    }
+    async log(level, event, message) {
+        // If it's an array or otherwise not an object, we must slightly tweak it
+        if(Array.isArray(message) || !typeof message === 'object') {
+            message = {msg:message};
+        }
 
-    /**
-     * gets the most recent, and only valid token
-     * @returns {Promise<string>} The effective token.
-     */
-    async getEffectiveToken() {
-        let payload = {};
-        let r;
-
-        // Get the most recent token grant
-        r = await db.table('token_grants').select().where({application:this.id}).orderBy('datetime', 'desc').limit(1);
-
-        // JWT uses seconds, so divide the timestamp provided by SQL by 1,000
-        
-        payload.iat = new Date(r[0].datetime).valueOf() / 1000;
-        payload.appid = this.id;
-
-        // Sign our token and return it.
-        return jwt.sign(payload, cfg.secret, cfg.signing);
-    }
-
-    /**
-     * Logs en event
-     * @param {string} level Level. You may use anything, though only 'warn' and 'error' produce alerts.
-     * @param {string} type Event type
-     * @param {JSON} msg Json-formatted message. Strings containing JSON are accepted
-     * @throws {Error} If the message isn't a JSON Object
-     */
-    async addLogEntry(level, type, msg) {
         try {
-            if(typeof msg !== 'object' && typeof msg !== undefined) {throw new Error();}
-            if(Array.isArray(msg)) {throw new Error();}
+            // Add the log to the database
+            await db.table('event_log').insert({
+                app:this.name,
+                level:level,
+                event:event,
+                message:message
+            });
         } catch(err) {
-            throw {
-                code : 'NOT_JSON_OBJ',
-                message : 'message may only be a JSON-formatted object'
-            };
-        }
-
-        let r = await db.table('event_log').insert({
-            app : this.id,
-            level : level || 'info',
-            type : type,
-            message : JSON.stringify(msg)
-        });
-
-        return r[0];
-    }
-
-    /**
-     * Deletes the App and everything in the database about it
-     * Acts asyncronously.
-     */
-    delete() {
-        // Delete tokens
-        db.table('token_grants').delete().where({application:this.id}).return();
-        // Delete the app itself
-        db.table('apps').delete().where({id:this.id}).return();
-    }
-
-    async getLogMessages(filter = {}, limit) {
-        Object.assign(filter,{app:this.id});
-        // TODO: Test preparedstatements here work properly.
-        let r = await db.table('event_log').select().where(filter).limit(limit);
-        console.log(r);
-        return r;
-    }
-
-    /**
-     * Gets the first (and hopefully only) app with a given ID.
-     * @param {number} id
-     * @returns {Promise<App>|undefined} An app if one matches. Undefined otherwise. 
-     */
-    static async getOne(id) {
-        let r = await db.table('apps').select().where({id:id}).limit(1);
-        let ri;
-
-        if(!r.length) {return undefined;}
-        ri = r[0];
-
-        return new App(ri.id, ri.appname, ri.ownerid);
-    }
-
-    /**
-     * Gets all Apps owned by a given user
-     * @param {number} user ID of the user to get apps for
-     * @returns {Array{App}} All apps for the given user.
-     */
-    static async getAllForUser(user) {
-        // TODO: Add a config for an app limit for users, and enforce that here. (and on the create method)
-        let r = await db.table('apps').select().where({ownerid:user});
-        let res = [];
-
-        for(let i in r) {
-            let curr = r[i];
-            res.push(new App(curr.id, curr.appname, curr.ownerid));
-        }
-
-        return res;
-    }
-
-    /**
-     * Gets the app represented by a valid token
-     * @param {string} token Token to check for validity and app
-     * @returns {Promise<App>} The app the token is valid for
-     */
-    static async getByToken(token) {
-        let decoded;
-
-        try {
-            let etoken;
-            let app;
-
-            decoded = await jwt.verify(token, cfg.secret, cfg.checking);
-
-            app = await App.getOne(decoded.appid);
-            etoken = await app.getEffectiveToken();
-
-            // If this token is anything but the effective token, it's invalid.
-            if(etoken !== token) {
-                throw new jwt.TokenExpiredError('jwt expired', etoken.iat);
+            // If Laaso fails to log to itself, log to console to avoid loops
+            if(this.id===0) {
+                console.error(`Failed to log message!\n\t${err}`)
+                return;
             }
 
-            // Everything checks out, this app is validly represented by the given token.
-            return app;
+            // Add meta data to the logged message
+            let msg = {}
+            msg.error = err;
+            msg._meta = {
+                app: this.name,
+                level: level,
+                event: event,
+                message: message
+            }
+
+            // Log the message as laaso
+            App.laaso.log('error', 'db_failure', msg);
+        }
+    }
+
+    /**
+     * Deletes the app, all logged events, and token grants
+     * @returns {undefined}
+     */
+    delete() {
+        try {
+            // Delete the app
+            db.table('apps').delete().where({id:this.id}).return();
+
+            // Delete tokens
+            db.table('token_grants').delete().where({app:this.id}).return();
+
+            // Delete logged messages
+            db.table('event_log').delete().where({app:this.id}).return();
         } catch(err) {
-            // TODO: Use Laaso's built in app to log things like this
-            console.log(err);
-            console.log('Invalid token supplied');
+            App.laaso.log('error', 'db_failure', {operation:'delete', id:this.id});
             return undefined;
         }
     }
+
+    /**
+     * Updates the object in the db if it exists, creates it otherwise.
+     * @returns {undefined}
+     */
+    async save() {
+        if(await this.getOne(this.id) === undefined) {
+            // If the app doesn't exist, create it
+            await db.table('apps').insert({app:this.name, owner:this.owner});
+        } else {
+            // If the app exists, update it
+            await db.table('apps').update({app:this.name, owner:this.owner}).where({id:this.id});
+        }
+    }
+
+    /* Static Database Functions */
+
+    /**
+     * Gets User given an ID
+     * @param {string} id - Snowflake ID of desired App
+     * @returns {App|undefined} App, or undefined if app doesn't exist
+     */
+    static async getOne(id) {
+        let app;
+        let r;
+
+        try {
+            r = await db.table('apps').select().where({id:id});
+
+            // No app found
+            if(!r.length) {return undefined;}
+            // Multiple apps found, uses first
+            if(r.length > 1) {App.laaso.log('warn', 'duplicate_id', {id:id});}
+
+            app = r[0];
+        } catch(err) {
+            // Log the failure
+            App.laaso.log('error', 'db_failure', {operation:'get', id:id});
+            return undefined;
+        }
+
+        return app;
+    }
 }
+
+// Define the default Laaso app for self logging
+App.laaso = new App(0,'Laaso',0);
 
 module.exports = App;
