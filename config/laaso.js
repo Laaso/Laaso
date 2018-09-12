@@ -1,3 +1,3 @@
 module.exports = {
-    'salt_rounds' : 20
+    'salt_rounds' : 12
 }

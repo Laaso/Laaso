@@ -43,8 +43,6 @@ exports.gen = function() {
     // Note time should be the only dynamic-length portion of the ID.
     binary_id = binary_time + BINARY_MID.padStart(6,'0') + binary_seq.padStart(12,'0');
 
-    console.log(binary_time,BINARY_MID,binary_seq);
-
     // Convert it to base10 and return result.
     return convertBases(binary_id,2,10);
 }
