@@ -39,7 +39,7 @@ class App {
                 app:this.name,
                 level:level,
                 event:event,
-                message:message
+                message:JSON.stringify(message)
             });
         } catch(err) {
             // If Laaso fails to log to itself, log to console to avoid loops

@@ -12,7 +12,7 @@ function convertBases(n,f,t) {
     return parseInt(n,f).toString(t);
 }
 
-exports.gen = function() {
+exports.gen = async function() {
     let ctime = Date.now();
     let binary_time;
     let binary_seq;
@@ -27,7 +27,7 @@ exports.gen = function() {
             SEQ = 0;
 
             // Non-busy 1ms wait, then get the new time
-            // sleep(1);
+            await sleep(1);
             ctime = Date.now();
         }
     } else {
@@ -53,7 +53,11 @@ exports.getDate = function(id) {
     // The time portion of the snowflake will change in time,
     // Use the static portions to determine its length.
     let time_len = binary_id.length-(18);
+
+    // Time in base2
     let binary_time = binary_id.substring(0,time_len);
+
+    // Time in base10
     let time = parseInt(binary_time,2) + cfg.timeOffset;
 
     return new Date(time);
